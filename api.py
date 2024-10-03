@@ -1,6 +1,7 @@
 import json
 import requests
-from settings import VALID_EMAIL, VALID_PASSWORD, TEMPORARY_EMAIL, TEMPORARY_PASSWORD
+from settings import VALID_EMAIL, VALID_PASSWORD
+import uuid
 
 
 class Pets:
@@ -27,7 +28,6 @@ class Pets:
         res = requests.get(self.base_url + 'users', headers=headers)
         status = res.status_code
         amount = res.json
-
         return status, amount
 
     def post_pet(self):
@@ -54,6 +54,15 @@ class Pets:
         link = res.json()['link']
         return status, link
 
+    def get_pet(self):
+        """Request to the Swagger to get a specific pet information"""
+        my_token = Pets().get_token()[0]
+        pet_id = Pets().post_pet()[0]
+        headers = {'Authorization': f'Bearer {my_token}'}
+        res = requests.get(self.base_url + f'pet/{pet_id}', headers=headers)
+        status = res.status_code
+        return status
+
     def edit_pet_name(self):
         """Request to the Swagger to change a pet's name"""
         my_token = Pets().get_token()[0]
@@ -74,48 +83,54 @@ class Pets:
         status = res.status_code
         return status
 
-    # def put_pet_like(self):
-    #     """Request to the Swagger to put like for a pet"""
-    #     my_token = Pets().get_token()[0]
-    #     pet_id = Pets().post_pet()[0]
-    #     headers = {'Authorization': f'Bearer {my_token}'}
-    #     url = f'{self.base_url}pet/{pet_id}/like'
-    #     res = requests.put(url, headers=headers)
-    #     status = res.status_code
-    #     return status
+    def put_pet_like(self):
+        """Request to the Swagger to put like for a pet"""
+        my_token = Pets().get_token()[0]
+        pet_id = Pets().post_pet()[0]
+        headers = {'Authorization': f'Bearer {my_token}'}
+        res = requests.put(self.base_url + f'pet/{pet_id}/like', headers=headers)
+        status = res.status_code
+        return status
 
-    # def put_pet_comment(self):
-    #     """Request to the Swagger to write a comment for a specific pet"""
-    #     my_token = Pets().get_token()[0]
-    #     my_id = Pets().get_token()[2]
-    #     pet_id = Pets().post_pet()[0]
-    #     headers = {'Authorization': f'Bearer {my_token}', 'Content-Type': 'application/json'}
-    #     url = f'{self.base_url}pet/{pet_id}/comment'
-    #     data = {"id": my_id, "message": 'You are the best pet ever!', "user_id": my_id}
-    #     res = requests.put(url, json=data, headers=headers)
-    #     status = res.status_code
-    #     comment = res.json()
-    #     return status, comment
+    def put_pet_comment(self):
+        """Request to the Swagger to write a comment for a specific pet"""
+        my_token = Pets().get_token()[0]
+        pet_id = Pets().post_pet()[0]
+        headers = {'Authorization': f'Bearer {my_token}'}
+        data = {"message": 'You are the best pet ever!'}
+        res = requests.put(self.base_url + f'pet/{pet_id}/comment', data=json.dumps(data), headers=headers)
+        status = res.status_code
+        comment = res.json()
+        return status, comment
 
-    # def get_registered(self) -> json:
-    #     data = {"email": TEMPORARY_EMAIL,
-    #             "password": TEMPORARY_PASSWORD, "confirm_password": TEMPORARY_PASSWORD}
-    #     res = requests.post(self.base_url + 'register', data=json.dumps(data))
-    #     my_temporary_id = res.json()
-    #     my_temporary_id = my_temporary_id.get('id')
-    #     status = res.status_code
-    #     print(my_temporary_id)
-    #     return status, my_temporary_id
+    def reg_and_del_user(self):
+        """Request to the Swagger to register and deleting a new user with unique data"""
+        temp_email = f"user_{uuid.uuid4().hex[:8]}@example.com"
+        temp_password = 'password123'
+        data = {"email": temp_email,
+                "password": temp_password,
+                "confirm_password": temp_password}
+        res = requests.post(self.base_url + 'register', json=data)
+        reg_status = res.status_code
+        if reg_status == 200:
+            temp_id = res.json()['id']
+            token = res.json()['token']
+            delete_headers = {'Authorization': f'Bearer {token}'}
+            delete_res = requests.delete(self.base_url + f'users/{temp_id}', headers=delete_headers)
+            delete_status = delete_res.status_code
+        else:
+            delete_status = None
 
-    # def delete_user(self):
+        return delete_status
 
 
 Pets().get_token()
 Pets().get_list_users()
 Pets().post_pet()
 Pets().get_pet_photo()
+Pets().get_pet()
 Pets().edit_pet_name()
 Pets().delete_pet()
-# Pets().put_pet_like()
-# Pets().put_pet_comment()
-# Pets().get_registered()
+Pets().put_pet_like()
+Pets().put_pet_comment()
+Pets().reg_and_del_user()

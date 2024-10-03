@@ -1,4 +1,2 @@
 VALID_EMAIL = 'julia_qa@gmail.com'
 VALID_PASSWORD = 'qwerty1234'
-TEMPORARY_EMAIL = 'gdfgdgdger@gmail.com'
-TEMPORARY_PASSWORD = '1234'
