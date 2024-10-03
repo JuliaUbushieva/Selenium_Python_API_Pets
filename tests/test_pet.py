@@ -1,4 +1,6 @@
 from api import Pets
+import allure
+from allure_commons.types import AttachmentType
 
 pt = Pets()
 
@@ -15,11 +17,16 @@ def test_list_users():
     assert amount
 
 
+@allure.feature('Pet Management')
+@allure.story('Create New Pet')
+@allure.severity('high')
 def test_post_pet():
-    status = pt.post_pet()[1]
-    pet_id = pt.post_pet()[0]
-    assert status == 200
-    assert pet_id
+    with allure.step("Post a new pet and verify the response"):
+        pet_id, status = pt.post_pet()
+    with allure.step(f"Assert that the status code is 200"):
+        assert status == 200
+    with allure.step(f"Assert that pet ID is returned"):
+        assert pet_id
 
 
 def test_get_pet_photo():

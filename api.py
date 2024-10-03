@@ -1,4 +1,6 @@
 import json
+
+import allure
 import requests
 from settings import VALID_EMAIL, VALID_PASSWORD
 import uuid
@@ -37,10 +39,15 @@ class Pets:
         headers = {'Authorization': f'Bearer {my_token}'}
         data = {"id": my_id,
                 "name": 'Kura', "type": 'parrot', "age": 4, "owner_id": my_id}
-        res = requests.post(self.base_url + 'pet', data=json.dumps(data), headers=headers)
-        pet_id = res.json()['id']
-        status = res.status_code
-        return pet_id, status
+
+        with allure.step("Send POST request to create a new pet"):
+            res = requests.post(self.base_url + 'pet', data=json.dumps(data), headers=headers)
+
+        with allure.step("Extract pet ID and status from the response"):
+            pet_id = res.json()['id']
+            status = res.status_code
+
+            return pet_id, status
 
     def get_pet_photo(self):
         """Request to the Swagger to upload a picture for a new pet"""
