@@ -1,6 +1,5 @@
 from api import Pets
 import allure
-from allure_commons.types import AttachmentType
 
 pt = Pets()
 
