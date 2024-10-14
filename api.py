@@ -1,5 +1,4 @@
 import json
-
 import allure
 import requests
 from settings import VALID_EMAIL, VALID_PASSWORD
@@ -54,8 +53,8 @@ class Pets:
         my_token = Pets().get_token()[0]
         pet_id = Pets().post_pet()[0]
         headers = {'Authorization': f'Bearer {my_token}'}
-        files = {'pic': ('parrot.png', open('C:/Users/julia/PycharmProjects/PyTests/tests/photo/parrot.png', 'rb'),
-                         'image/png')}
+        files = {'pic': ('parrot.png', open('C:/Users/julia/PycharmProjects/Selenium_Python_API_Pets/photo'
+                                            '/parrot.png', 'rb'), 'image/png')}
         res = requests.post(self.base_url + f'pet/{pet_id}/image', headers=headers, files=files)
         status = res.status_code
         link = res.json()['link']
